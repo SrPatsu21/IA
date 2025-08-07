@@ -6,6 +6,7 @@
 mkdir -p libs
 cd libs
 git clone https://gitlab.com/libeigen/eigen.git
+git clone https://github.com/opencv/opencv.git
 cd ..
 ```
 
@@ -19,8 +20,8 @@ sudo apt install mingw-w64
 
 ```shell
 mkdir -p build/linux && cd build/linux
-cmake ../.. -DCMAKE_BUILD_TYPE=Release
-make
+cmake ../.. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+make -j$(nproc)
 ./ia_basica
 cd ../..
 ```
