@@ -4,8 +4,8 @@
 
 int main() {
     // Eigen: define 2x2 matriz and 2x1 vetor
-    Eigen::Matrix2f mat <<  1, 2,
-                            3, 4;
+    Eigen::Matrix2f mat;
+    mat <<  1, 2, 3, 4;
 
     Eigen::Vector2f vec(5, 6);
 
