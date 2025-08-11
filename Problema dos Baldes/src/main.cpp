@@ -1,53 +1,64 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct Estado {
+struct State {
     int b5, b3;
 };
 
 const int CAP5 = 5, CAP3 = 3;
 
-void imprimirEstado(const Estado &e, int nivel, const string &acao) {
-    for (int i = 0; i < nivel; i++) cout << "   ";
+void printState(const State &e, int level, const string &action) {
+    // tab
+    for (int i = 0; i < level; i++){
+        cout << "   ";
+    }
+    // bucket (x, y)
     cout << "(" << e.b5 << "," << e.b3 << ")";
-    if (!acao.empty()) cout << " -- " << acao;
-    if (e.b5 + e.b3 == 7) cout << "  <- Objetivo!";
+    // -- action
+    if (!action.empty()){
+        cout << " -- " << action;
+    }
     cout << "\n";
 }
 
-void gerarArvore(const Estado &e, int nivel, set<pair<int,int>> visitados) {
-    visitados.insert({e.b5, e.b3});
+void generateTree(const State &e, int level, set<pair<int,int>> visit) {
+    visit.insert({e.b5, e.b3});
 
+    // verify if end
     if (e.b5 + e.b3 == 7) {
-        // Imprime o estado objetivo e NÃO gera filhos (para este ramo)
-        imprimirEstado(e, nivel, "Estado final - Objetivo");
+        // print the final state and donot generate more node from here
+        std:: string message = "Final state - Reached with ";
+        message = message.append(std::to_string(level));
+        printState(e, level, message);
         return;
     }
 
-    vector<pair<Estado,string>> proximos;
+    // The possibilities - what the program gona do
+    vector<pair<State,string>> next;
 
-    proximos.push_back({{CAP5, e.b3}, "Encher balde de 5"});
-    proximos.push_back({{e.b5, CAP3}, "Encher balde de 3"});
-    proximos.push_back({{0, e.b3}, "Esvaziar balde de 5"});
-    proximos.push_back({{e.b5, 0}, "Esvaziar balde de 3"});
+    next.push_back({{CAP5, e.b3}, "Fill bucket of 5"});
+    next.push_back({{e.b5, CAP3}, "Fill bucket of 3"});
+    next.push_back({{0, e.b3}, "Empty bucket of 5"});
+    next.push_back({{e.b5, 0}, "Empty bucket of 3"});
 
     int transf = min(e.b5, CAP3 - e.b3);
-    proximos.push_back({{e.b5 - transf, e.b3 + transf}, "Transferir de 5 para 3"});
+    next.push_back({{e.b5 - transf, e.b3 + transf}, "Transfer from 5 to 3"});
 
     transf = min(e.b3, CAP5 - e.b5);
-    proximos.push_back({{e.b5 + transf, e.b3 - transf}, "Transferir de 3 para 5"});
+    next.push_back({{e.b5 + transf, e.b3 - transf}, "Transfer from 3 to 5"});
 
-    for (auto &prox : proximos) {
-        if (!visitados.count({prox.first.b5, prox.first.b3})) {
-            imprimirEstado(prox.first, nivel + 1, prox.second);
-            gerarArvore(prox.first, nivel + 1, visitados);
+    // recursive call next nodes
+    for (auto &prox : next) {
+        if (!visit.count({prox.first.b5, prox.first.b3})) {
+            printState(prox.first, level + 1, prox.second);
+            generateTree(prox.first, level + 1, visit);
         }
     }
 }
 
 int main() {
-    Estado inicial = {0, 0};
-    imprimirEstado(inicial, 0, "Início");
-    gerarArvore(inicial, 0, {});
+    State initial = {0, 0};
+    printState(initial, 0, "Start");
+    generateTree(initial, 0, {});
     return 0;
 }
