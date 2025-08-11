@@ -10,7 +10,7 @@ const int CAP5 = 5, CAP3 = 3;
 void printState(const State &e, int level, const string &action) {
     // tab
     for (int i = 0; i < level; i++){
-        cout << "   ";
+        cout << "|   ";
     }
     // bucket (x, y)
     cout << "(" << e.b5 << "," << e.b3 << ")";
@@ -49,6 +49,7 @@ void generateTree(const State &e, int level, set<pair<int,int>> visit) {
 
     // recursive call next nodes
     for (auto &prox : next) {
+        //verify if it the state is new. and never visited.
         if (!visit.count({prox.first.b5, prox.first.b3})) {
             printState(prox.first, level + 1, prox.second);
             generateTree(prox.first, level + 1, visit);
