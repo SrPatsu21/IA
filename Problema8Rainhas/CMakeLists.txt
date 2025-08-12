@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(water_jug_tree LANGUAGES CXX)
+project(8QueensProblem  LANGUAGES CXX)
 
 # C++ version
 set(CMAKE_CXX_STANDARD 17)
@@ -34,8 +34,21 @@ set(SOURCES
     src/main.cpp
 )
 
+# Set output name depending on platform
+if (WIN32)
+    set(EXECUTABLE_OUTPUT_NAME "${PROJECT_NAME}")
+else()
+    set(EXECUTABLE_OUTPUT_NAME "${PROJECT_NAME}.out")
+endif()
+
 # exe
 add_executable(${PROJECT_NAME} ${SOURCES})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${EXECUTABLE_OUTPUT_NAME}")
+
+
+if (WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+endif()
 
 # Target 'run'
 add_custom_target(run
