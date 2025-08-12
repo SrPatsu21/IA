@@ -20,4 +20,5 @@ cd build-windows
 cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw64.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 
+wine ./water_bucket_tree.exe
 ```
