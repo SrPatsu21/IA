@@ -10,11 +10,6 @@ void nextRow(std::pair<int, int>& index){
     if (index.second < TABLE_HEIGHT)
     {
         index.second++;
-    }else{
-        if (index.first < TABLE_WIDTH)
-        {
-            index.first++;
-        }
     }
 }
 
@@ -32,73 +27,41 @@ void nextLine(std::pair<int, int>& index){
     }
 }
 
-bool isSafe(std::vector<std::pair<int, int>>& queens, std::pair<int, int>& index){
-    for (auto q : queens)
-    {
-        if (q.first == index.first)
-        {
-            nextLine(index);
-            return false;
-        }
-        if (q.second == index.second)
-        {
-            nextRow(index);
-            return false;
-        }
-        //check right diagonal
-        int d_size = std::min(TABLE_WIDTH - q.first, TABLE_HEIGHT - q.second);
-        for (int i = 1; i < d_size ; i++)
-        {
-            if (q.first+i == index.first && q.second+i == index.second)
-            {
-                nextLine(index);
-                return false;
-            }
-        }
-        //check reverse right diagonal
-        d_size = std::min(TABLE_WIDTH - q.first, q.second + 1);
-        for (int i = 1; i < d_size ; i++)
-        {
-            if (q.first+i == index.first && q.second-i == index.second)
-            {
-                nextLine(index);
-                return false;
-            }
-        }
-        //check left diagonal
-        d_size = std::min(q.first + 1, TABLE_HEIGHT - q.second);
-        for (int i = 1; i < d_size ; i++)
-        {
-            if (q.first-i == index.first && q.second+i == index.second)
-            {
-                nextLine(index);
-                return false;
-            }
-        }
-        //check reverse left diagonal
-        d_size = std::min(q.first + 1, q.second + 1);
-        for (int i = 1; i < d_size ; i++)
-        {
-            if (q.first-i == index.first && q.second-i == index.second)
-            {
-                nextLine(index);
-                return false;
-            }
-        }
+bool isSafe(const std::vector<std::pair<int,int>>& queens, const std::pair<int,int>& index) {
+    for (auto q : queens) {
+        if (q.first == index.first || q.second == index.second) return false;
+        if (std::abs(q.first - index.first) == std::abs(q.second - index.second)) return false;
     }
     return true;
+}
+
+void removeQueen(std::vector<std::pair<int, int>>& queens, std::pair<int, int>& index){
+    if (queens.empty())
+    {
+        return;
+    }
+    std::cout << "Queen " << queens.size() << " removed at (" << queens.back().first << "," << queens.back().second << ")" << std::endl;
+    index = {queens.back().first, queens.back().second};
+    nextLine(index);
+    if (index == TABLE && !isSafe(queens, index))
+    {
+        queens.pop_back();
+        removeQueen(queens, index);
+    }else
+    {
+        queens.pop_back();
+    }
 }
 
 void tryPlaceQueen(std::vector<std::pair<int, int>>& queens, std::pair<int, int>& index){
     if (queens.size() < N_QUEENS)
     {
-        while (!isSafe(queens, index) && index != TABLE){}
+        while (!isSafe(queens, index) && index != TABLE){
+            nextLine(index);
+        }
         if (index == TABLE && !isSafe(queens, index))
         {
-            std::cout << "Queen removed at (" << queens.back().first << "," << queens.back().second << ")" << std::endl;
-            index = {queens.end().base()->first, queens.back().second};
-            nextLine(index);
-            queens.pop_back();
+            removeQueen(queens, index);
         }else{
             //place queen
             queens.push_back({index.first, index.second});
@@ -136,7 +99,7 @@ void tryPlaceQueen(std::vector<std::pair<int, int>>& queens, std::pair<int, int>
 
 int main() {
     std::vector<std::pair<int, int>> queens;
-    std::pair<int, int> index = {0, 1};
+    std::pair<int, int> index = {0, 0};
     tryPlaceQueen(queens, index);
     return 0;
 }
