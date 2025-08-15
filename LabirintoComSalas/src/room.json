@@ -1,0 +1,21 @@
+{
+    "rooms": [
+        {
+            "name": "A",
+            "connections": [
+                { "to": "B", "weight": 10 },
+                { "to": "C", "weight": 20 }
+            ]
+        },
+        {
+            "name": "B",
+            "connections": [
+                { "to": "C", "weight": 5 }
+            ]
+        },
+        {
+            "name": "C",
+            "connections": []
+        }
+    ]
+}
