@@ -2,20 +2,17 @@
     "rooms": [
         {
             "name": "A",
-            "connections": [
-                { "to": "B", "weight": 10 },
-                { "to": "C", "weight": 20 }
+            "blocks": [
+                { "x": 0, "y": 0, "connections": [ {"room": "B", "x": 1, "y": 0} ] },
+                { "x": 0, "y": 1 }
             ]
         },
         {
             "name": "B",
-            "connections": [
-                { "to": "C", "weight": 5 }
+            "blocks": [
+                { "x": 1, "y": 0 },
+                { "x": 1, "y": 1 }
             ]
-        },
-        {
-            "name": "C",
-            "connections": []
         }
     ]
 }
