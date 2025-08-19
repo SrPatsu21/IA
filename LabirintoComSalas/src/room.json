@@ -33,125 +33,125 @@
             "blocks": [
                 { "x": 0, "y": 4, "connections": [ {"room": "D", "x": 0, "y": 3} ] },
                 { "x": 1, "y": 4, "connections": [ {"room": "D", "x": 1, "y": 3} ] },
-                { "x": 0, "y": 5 },
-                { "x": 1, "y": 5 }
+                { "x": 0, "y": 5, "connections": [ {"room": "F", "x": 0, "y": 6} ] },
+                { "x": 1, "y": 5, "connections": [ {"room": "F", "x": 1, "y": 6} ] }
             ]
         },
         {
             "name": "F",
             "blocks": [
-                { "x": 0, "y": 6, "connections": [ {"room": "B", "x": 0, "y": 2} ] },
-                { "x": 1, "y": 6, "connections": [ {"room": "B", "x": 0, "y": 2} ] }
+                { "x": 0, "y": 6, "connections": [ {"room": "E", "x": 0, "y": 5} ] },
+                { "x": 1, "y": 6, "connections": [ {"room": "E", "x": 1, "y": 5}, {"room": "J", "x": 2, "y": 6} ] }
             ]
         },
         {
             "name": "G",
             "blocks": [
-                { "x": 2, "y": 0 },
-                { "x": 2, "y": 1 }
+                { "x": 2, "y": 0, "connections": [ {"room": "K", "x": 3, "y": 0} ] },
+                { "x": 2, "y": 1, "connections": [ {"room": "C", "x": 1, "y": 1}, {"room": "H", "x": 2, "y": 2}, {"room": "K", "x": 3, "y": 1} ] }
             ]
         },
         {
             "name": "H",
             "blocks": [
-                { "x": 2, "y": 2 },
-                { "x": 3, "y": 2 }
+                { "x": 2, "y": 2, "connections": [ {"room": "G", "x": 2, "y": 1}, {"room": "I", "x": 2, "y": 3} ] },
+                { "x": 3, "y": 2, "connections": [ {"room": "L", "x": 3, "y": 3}, {"room": "K", "x": 3, "y": 1} ] }
             ]
         },
         {
             "name": "I",
             "blocks": [
-                { "x": 2, "y": 3 },
-                { "x": 2, "y": 4 }
+                { "x": 2, "y": 3, "connections": [ {"room": "H", "x": 2, "y": 2} ] },
+                { "x": 2, "y": 4, "connections": [ {"room": "J", "x": 2, "y": 5} ] }
             ]
         },
         {
             "name": "J",
             "blocks": [
-                { "x": 2, "y": 5 },
-                { "x": 2, "y": 6 }
+                { "x": 2, "y": 5, "connections": [ {"room": "I", "x": 2, "y": 4}, {"room": "M", "x": 3, "y": 5} ] },
+                { "x": 2, "y": 6, "connections": [ {"room": "F", "x": 1, "y": 6}, {"room": "M", "x": 3, "y": 6} ] }
             ]
         },
         {
             "name": "K",
             "blocks": [
-                { "x": 3, "y": 0 },
-                { "x": 3, "y": 1 }
+                { "x": 3, "y": 0, "connections": [ {"room": "G", "x": 2, "y": 0}, {"room": "N", "x": 4, "y": 0} ] },
+                { "x": 3, "y": 1, "connections": [ {"room": "G", "x": 2, "y": 1}, {"room": "N", "x": 4, "y": 1}, {"room": "H", "x": 3, "y": 2} ] }
             ]
         },
         {
             "name": "L",
             "blocks": [
-                { "x": 3, "y": 3 },
-                { "x": 3, "y": 4 },
+                { "x": 3, "y": 3, "connections": [ {"room": "H", "x": 3, "y": 2} ] },
+                { "x": 3, "y": 4, "connections": [ {"room": "M", "x": 3, "y": 5} ] },
                 { "x": 4, "y": 3 },
-                { "x": 4, "y": 4 }
+                { "x": 4, "y": 4, "connections": [ {"room": "M", "x": 4, "y": 5} ] }
             ]
         },
         {
             "name": "M",
             "blocks": [
-                { "x": 3, "y": 5 },
-                { "x": 3, "y": 6 },
-                { "x": 4, "y": 5 },
-                { "x": 4, "y": 6 }
+                { "x": 3, "y": 5, "connections": [ {"room": "L", "x": 3, "y": 4}, {"room": "J", "x": 2, "y": 5} ] },
+                { "x": 3, "y": 6, "connections": [ {"room": "J", "x": 2, "y": 6} ] },
+                { "x": 4, "y": 5, "connections": [ {"room": "L", "x": 4, "y": 4}, {"room": "P", "x": 5, "y": 5} ] },
+                { "x": 4, "y": 6, "connections": [ {"room": "P", "x": 5, "y": 6} ] }
             ]
         },
         {
             "name": "N",
             "blocks": [
-                { "x": 4, "y": 0 },
-                { "x": 4, "y": 1 },
-                { "x": 5, "y": 0 },
-                { "x": 5, "y": 1 }
+                { "x": 4, "y": 0, "connections": [ {"room": "K", "x": 3, "y": 0} ] },
+                { "x": 4, "y": 1, "connections": [ {"room": "K", "x": 3, "y": 1}, {"room": "O", "x": 4, "y": 2} ] },
+                { "x": 5, "y": 0, "connections": [ {"room": "Q", "x": 6, "y": 0} ] },
+                { "x": 5, "y": 1, "connections": [ {"room": "Q", "x": 6, "y": 1}, {"room": "O", "x": 5, "y": 2} ] }
             ]
         },
         {
             "name": "O",
             "blocks": [
-                { "x": 4, "y": 2 },
-                { "x": 5, "y": 2 }
+                { "x": 4, "y": 2, "connections": [ {"room": "N", "x": 4, "y": 1} ] },
+                { "x": 5, "y": 2, "connections": [ {"room": "N", "x": 5, "y": 1}, {"room": "P", "x": 5, "y": 3} ] }
             ]
         },
         {
             "name": "P",
             "blocks": [
-                { "x": 5, "y": 3 },
-                { "x": 5, "y": 4 },
-                { "x": 5, "y": 5 },
-                { "x": 5, "y": 6 }
+                { "x": 5, "y": 3, "connections": [ {"room": "O", "x": 5, "y": 2} ] },
+                { "x": 5, "y": 4, "connections": [ {"room": "T", "x": 6, "y": 4} ] },
+                { "x": 5, "y": 5, "connections": [ {"room": "T", "x": 6, "y": 5}, {"room": "M", "x": 4, "y": 5} ] },
+                { "x": 5, "y": 6, "connections": [ {"room": "M", "x": 4, "y": 6} ] }
             ]
         },
         {
             "name": "Q",
             "blocks": [
-                { "x": 6, "y": 0 },
-                { "x": 7, "y": 1 },
-                { "x": 6, "y": 0 },
-                { "x": 7, "y": 1 }
+                { "x": 6, "y": 0, "connections": [ {"room": "N", "x": 5, "y": 0} ] },
+                { "x": 7, "y": 0 },
+                { "x": 6, "y": 1, "connections": [ {"room": "O", "x": 5, "y": 1}, {"room": "R", "x": 6, "y": 2} ] },
+                { "x": 7, "y": 1, "connections": [ {"room": "R", "x": 7, "y": 2} ] }
             ]
         },
         {
             "name": "R",
             "blocks": [
-                { "x": 6, "y": 2 },
-                { "x": 7, "y": 2 }
+                { "x": 6, "y": 2, "connections": [ {"room": "Q", "x": 6, "y": 1}, {"room": "S", "x": 6, "y": 3} ] },
+                { "x": 7, "y": 2, "connections": [ {"room": "Q", "x": 7, "y": 1}, {"room": "S", "x": 7, "y": 3} ] }
             ]
         },
         {
             "name": "S",
             "blocks": [
-                { "x": 6, "y": 3 },
-                { "x": 7, "y": 3 }
+                { "x": 6, "y": 3, "connections": [ {"room": "R", "x": 6, "y": 2}, {"room": "T", "x": 6, "y": 4} ] },
+                { "x": 7, "y": 3, "connections": [ {"room": "R", "x": 7, "y": 2}, {"room": "T", "x": 7, "y": 4} ] }
             ]
         },
         {
             "name": "T",
             "blocks": [
-                { "x": 6, "y": 4 },
-                { "x": 7, "y": 4 },
-                { "x": 6, "y": 5 },
-                { "x": 7, "y": 5 }
+                { "x": 6, "y": 4, "connections": [ {"room": "S", "x": 6, "y": 3}, {"room": "P", "x": 5, "y": 4} ] },
+                { "x": 7, "y": 4, "connections": [ {"room": "S", "x": 7, "y": 3} ] },
+                { "x": 6, "y": 5, "connections": [ {"room": "U", "x": 6, "y": 6}, {"room": "P", "x": 5, "y": 5} ] },
+                { "x": 7, "y": 5, "connections": [ {"room": "U", "x": 7, "y": 6} ] }
             ]
         },
         {
