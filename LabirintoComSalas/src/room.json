@@ -127,7 +127,7 @@
             "blocks": [
                 { "x": 6, "y": 0, "connections": [ {"room": "N", "x": 5, "y": 0} ] },
                 { "x": 7, "y": 0 },
-                { "x": 6, "y": 1, "connections": [ {"room": "O", "x": 5, "y": 1}, {"room": "R", "x": 6, "y": 2} ] },
+                { "x": 6, "y": 1, "connections": [ {"room": "N", "x": 5, "y": 1}, {"room": "R", "x": 6, "y": 2} ] },
                 { "x": 7, "y": 1, "connections": [ {"room": "R", "x": 7, "y": 2} ] }
             ]
         },
@@ -157,8 +157,8 @@
         {
             "name": "U",
             "blocks": [
-                { "x": 6, "y": 6 },
-                { "x": 7, "y": 6 }
+                { "x": 6, "y": 6, "connections": [ {"room": "T", "x": 6, "y": 5} ] },
+                { "x": 7, "y": 6, "connections": [ {"room": "T", "x": 7, "y": 5} ] }
             ]
         }
     ]
