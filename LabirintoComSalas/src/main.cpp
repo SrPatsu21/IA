@@ -5,6 +5,7 @@
 #include <bits/stdc++.h>
 #include <sstream>
 #include <nlohmann/json.hpp>
+#include <sstream>
 
 class Room;
 
@@ -162,8 +163,6 @@ int buildMaze(std::vector<Room*>& maze, const std::string& dataPath) {
     return static_cast<int>(maze.size());
 }
 
-#include <sstream>
-
 std::string printMaze(const std::vector<Room*>& maze) {
     std::ostringstream out;
 
@@ -192,6 +191,11 @@ std::string printMaze(const std::vector<Room*>& maze) {
 
     return out.str();
 }
+
+void breadthFirstSearch();
+void depthFirstSearch();
+void greedyBestFirstSearch();
+void aSearch();
 
 int main() {
     std::vector<Room*> maze;
