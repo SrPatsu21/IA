@@ -1,16 +1,13 @@
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <string>
 #include <stdexcept>
 #include <bits/stdc++.h>
 #include <sstream>
 #include <nlohmann/json.hpp>
-#include <sstream>
 
 class Room;
-
-const int MAZE_WIDTH = 8;
-const int MAZE_HEIGH = 7;
 
 class Vec2
 {
@@ -18,6 +15,7 @@ public:
     int x = 0;
     int y = 0;
     Room* owner = nullptr;
+    bool visited = false;
     std::vector<Vec2*> connections;
 
     Vec2(int x, int y, Room* owner){
@@ -37,6 +35,15 @@ public:
 
     bool operator==(const Vec2& other) const {
         return x == other.x && y == other.y && owner == other.owner;
+    }
+
+    bool isNeighbor(Vec2* v2){
+        int diff = std::abs(this->x-v2->x) + std::abs(this->y-v2->y);
+        if (diff == 1)
+        {
+            return true;
+        }
+        return false;
     }
 };
 
@@ -163,43 +170,121 @@ int buildMaze(std::vector<Room*>& maze, const std::string& dataPath) {
     return static_cast<int>(maze.size());
 }
 
-std::string printMaze(const std::vector<Room*>& maze) {
-    std::ostringstream out;
-
-    for (Room* room : maze) {
-        out << "Room " << room->getName() << ":\n";
-
-        for (const Vec2* block : room->getBlocks()) {
-            out << "  Block (" << block->x << ", " << block->y << ")";
-
-            if (!block->connections.empty()) {
-                out << " -> ";
-                for (size_t i = 0; i < block->connections.size(); ++i) {
-                    const Vec2* conn = block->connections[i];
-                    out << conn->owner->getName()
-                        << "(" << conn->x << "," << conn->y << ")";
-                    if (i + 1 < block->connections.size())
-                        out << ", ";
-                }
+std::vector<std::vector<Vec2*>> buildGrid(const std::vector<Room*>& maze) {
+    // find the bounds of the maze
+    int maxX = 0, maxY = 0;
+    for (auto* room : maze) {
+        for (auto* block : room->getBlocks()) {
+            if (block->x > maxX) {
+                maxX = block->x;
             }
-
-            out << "\n";
+            if (block->y > maxY) {
+                maxY = block->y;
+            }
         }
-
-        out << "\n";
     }
 
-    return out.str();
+    // create empty grid
+    std::vector<std::vector<Vec2*>> grid(maxY + 1, std::vector<Vec2*>(maxX + 1, nullptr));
+
+    // fill grid with blocks
+    for (auto* room : maze) {
+        for (auto* block : room->getBlocks()) {
+            grid[block->y][block->x] = block;
+        }
+    }
+
+    return grid;
 }
 
-void breadthFirstSearch();
+void printGrid(const std::vector<std::vector<Vec2*>>& grid) {
+    for (const auto& row : grid) {
+        for (Vec2* cell : row) {
+            if (!cell) {
+                std::cout << ". "; // empty
+            } else if (cell->visited) {
+                std::cout << "X "; // visited
+            } else {
+                std::cout << "O "; // not visited
+            }
+        }
+        std::cout << "\n";
+    }
+}
+
+std::deque<Vec2*> breadthFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
+    std::deque<std::deque<Vec2*>> paths;
+    paths.push_back({ start });
+    std::cout << "===================================================================" << " actives:" << paths.size() << std::endl;
+    printGrid(grid);
+    if (start == destination)
+    {
+        return paths.back();
+    }
+
+    while (!paths.empty())
+    {
+        auto path = paths.front();
+        paths.pop_front();
+
+        if (path.back() == destination)
+        {
+            return path;
+        }
+
+        if (!path.back()->visited){
+
+            path.back()->visited=true;
+
+            for (Vec2* block : path.back()->owner->getBlocks()) {
+                if (!block->visited && path.back()->isNeighbor(block)) {
+                    auto newPath = path;
+                    newPath.push_back(block);
+                    paths.push_back(newPath);
+                }
+            }
+            for (Vec2* neighbor : path.back()->connections) {
+                if (!neighbor->visited) {
+                    auto newPath = path;
+                    newPath.push_back(neighbor);
+                    paths.push_back(newPath);
+                }
+            }
+        }
+        std::cout << "===================================================================" << " actives:" << paths.size() << std::endl;
+        printGrid(grid);
+    }
+
+    std::deque<Vec2*> fail = {};
+    return fail;
+};
+
 void depthFirstSearch();
 void greedyBestFirstSearch();
-void aSearch();
+void aStarSearch();
 
 int main() {
     std::vector<Room*> maze;
     buildMaze(maze, "./room.json");
-    std::cout << printMaze(maze) << std::endl;
+
+    std::vector<std::vector<Vec2 *>> grid = buildGrid(maze);
+
+    Vec2* start =grid[0][0];
+    Vec2* destination = grid[5][2];
+    std::cout << "start:" << "(" << start->x << ", " << start->y << ") ";
+    std::cout << " destination:" << "(" << destination->x << ", " << destination->y << ") ";
+    std::cout << std::endl;
+
+    //* breadthFirstSearch
+    std::deque<Vec2 *> path = breadthFirstSearch(start, destination, grid);
+    std::cout << "Solution:" << std::endl;
+    for (Vec2* node : path)
+    {
+        if (node) {
+            std::cout << "" << node->owner->getName() <<"(" << node->x << ", " << node->y << ") |";
+        }
+    }
+    std::cout << std::endl;
+
     return 0;
 }
