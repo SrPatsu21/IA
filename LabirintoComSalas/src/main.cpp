@@ -212,6 +212,29 @@ void printGrid(const std::vector<std::vector<Vec2*>>& grid) {
     }
 }
 
+void printGridResult(const std::vector<std::vector<Vec2*>>& grid, std::deque<Vec2*> path) {
+    for (const auto& row : grid) {
+        for (Vec2* cell : row) {
+            bool isPath = false;
+            for(Vec2* v2 : path){
+                if (v2 == cell)
+                {
+                    isPath = true;
+                    break;
+                }
+            }
+            if (!cell) {
+                std::cout << ". "; // empty
+            } else if (isPath) {
+                std::cout << "X "; // visited
+            } else {
+                std::cout << "O "; // not visited
+            }
+        }
+        std::cout << "\n";
+    }
+}
+
 std::deque<Vec2*> breadthFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
     std::deque<std::deque<Vec2*>> paths;
     paths.push_back({ start });
@@ -270,7 +293,7 @@ int main() {
     std::vector<std::vector<Vec2 *>> grid = buildGrid(maze);
 
     Vec2* start =grid[0][0];
-    Vec2* destination = grid[5][2];
+    Vec2* destination = grid[6][7];
     std::cout << "start:" << "(" << start->x << ", " << start->y << ") ";
     std::cout << " destination:" << "(" << destination->x << ", " << destination->y << ") ";
     std::cout << std::endl;
@@ -284,6 +307,8 @@ int main() {
             std::cout << "" << node->owner->getName() <<"(" << node->x << ", " << node->y << ") |";
         }
     }
+    std::cout << std::endl;
+    printGridResult(grid, path);
     std::cout << std::endl;
 
     return 0;
