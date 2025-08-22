@@ -22,7 +22,7 @@ static const int DIST[MATRIX_SIZE][MATRIX_SIZE] = {
 struct GAParams {
     size_t populationSize = 100;
     size_t generations = 10;
-    size_t tournamentSize = populationSize/4;
+    size_t tournamentSize = 4;
     double mutationRate = 0.075;
     unsigned seed = std::random_device{}();
 };
@@ -39,12 +39,10 @@ int pathDistance(std::vector<int> &path){
 
 std::vector<int> randomPath(std::mt19937& rng){
     std::vector<int> path(MATRIX_SIZE);
-    std::vector<char> cities = CITY_NAMES;
-    while (cities.size()){
-        int next = rng() % cities.size();
-        path.push_back(cities[next]);
-        cities.erase(std::remove(cities.begin(), cities.end(), next), cities.end());
-    }
+    // 0 1 2 3 4
+    std::iota(path.begin(), path.end(), 0);
+    //random and make
+    std::shuffle(path.begin(), path.end(), rng);
     return path;
 }
 
@@ -56,7 +54,6 @@ double fitness(std::vector<int>& path) {
 double fitness(int distance) {
     return 1.0 / (distance + 1e-9);
 }
-
 
 std::vector<std::vector<int>> initPopulation( GAParams &param, std::mt19937& rng) {
     std::vector<std::vector<int>> pop;
@@ -81,87 +78,48 @@ void mutate(std::vector<int>& ind, double mutationRate, std::mt19937& rng) {
     }
 }
 
-std::vector<std::tuple<std::vector<int>, int, double>> tournamentSelection(const std::vector<std::vector<int>>& pop, GAParams &param) {
-    std::vector<std::tuple<std::vector<int>, int, double>> elite;
-
-    for (std::vector<int> path : pop)
-    {
-        int distance = pathDistance(path);
-        elite.push_back({path, distance, fitness(distance)});
+std::vector<int> tournamentSelection(const std::vector<std::vector<int>>& pop, GAParams &param, std::mt19937& rng) {
+    std::uniform_int_distribution<int> pick(0, (int)pop.size()-1);
+    //init
+    std::vector<int> best = pop[pick(rng)];
+    double bestFit = fitness(best);
+    //find the best
+    for (size_t i=1; i < param.tournamentSize; i++) {
+        auto cand = pop[pick(rng)];
+        double f = fitness(cand);
+        if (f > bestFit) {
+            best = cand;
+            bestFit = f;
+        }
     }
-
-    //sort
-    std::sort(elite.begin(), elite.end(), [](const auto& a, const auto& b)
-        {
-            return std::get<2>(a) > std::get<2>(b);
-        });
-
-    //remove what is not elite
-    while (elite.size() > param.tournamentSize)
-    {
-        elite.pop_back();
-    }
-    return elite;
+    return best;
 }
 
-std::vector<std::vector<int>> makeCrossover(std::vector<std::tuple<std::vector<int>, int, double>> elite, std::mt19937& rng, GAParams &param)
-{
-    // total weight
-    double totalWeight = 0.0;
-    for (auto& t : elite) {
-        totalWeight += std::get<2>(t); // double
+std::vector<int> orderCrossover(const std::vector<int>& p1, const std::vector<int>& p2, std::mt19937& rng) {
+    int size = p1.size();
+    std::vector<int> child(size, -1);
+    std::uniform_int_distribution<int> cut(0, size-1);
+    int a = cut(rng), b = cut(rng);
+    if (a > b) {
+        std::swap(a,b);
     }
 
-    if (totalWeight <= 0.0) {
-        throw std::runtime_error("All weights are zero or negative.");
-    }
-
-    std::uniform_real_distribution<double> dist(0.0, totalWeight);
-
-    std::vector<std::vector<int>> pop;
-    while (pop.size() < param.populationSize)
+    // copy p1
+    for (int i=a; i<=b; i++)
     {
-        double r1 = dist(rng);
-        bool r1set = false;
-        double r2 = dist(rng);
-        bool r2set = false;
-        std::vector<int> p1;
-        std::vector<int> p2;
-
-        double cumulative = 0.0;
-        for (auto& e : elite) {
-            if (r1set && r2set)
-            {
-                break;
-            }
-            cumulative += std::get<2>(e);
-            if (!r1set && r1 < cumulative) {
-                p1 = std::get<0>(e);
-                r1set = true;
-            }
-            if (!r2set && r2 < cumulative) {
-                p2 = std::get<0>(e);
-                r2set = true;
-            }
-        }
-
-        std::vector<int> newpath;
-        if (p1.size() == p2.size())
-        {
-            std::uniform_real_distribution<float> oneOrAnother(0, 1);
-            for (size_t i = 0; i < p1.size(); i++)
-            {
-                if (oneOrAnother(rng) > 0.5f) {
-                    newpath.push_back(p1[i]);
-                }else {
-                    newpath.push_back(p2[i]);
-                }
-            }
-            mutate(newpath, param.mutationRate, rng);
-        }
-        pop.push_back(newpath);
+        child[i] = p1[i];
     }
-    return pop;
+
+    // mix with p2
+    int idx = (b+1)%size;
+    for (int j=0;j<size;j++) {
+        int c = p2[(b+1+j)%size];
+        if (find(child.begin(), child.end(), c) == child.end()) {
+            child[idx] = c;
+            idx = (idx+1)%size;
+        }
+    }
+    return child;
 }
 
 void printPath(const std::vector<int>& path) {
@@ -171,16 +129,48 @@ void printPath(const std::vector<int>& path) {
     std::cout << CITY_NAMES[path.front()] << "\n";
 }
 
+void findBest(std::vector<std::vector<int>> &pop, std::vector<int> &best, double &bestFit, GAParams &param, std::mt19937 &rng){
+    for (size_t gen=0; gen < param.generations; gen++) {
+        std::vector<std::vector<int>> newPop;
+
+        // elitism
+        auto elite = best;
+
+        while (newPop.size() < param.populationSize) {
+            auto p1 = tournamentSelection(pop, param, rng);
+            auto p2 = tournamentSelection(pop, param, rng);
+            auto child = orderCrossover(p1,p2,rng);
+            mutate(child, param.mutationRate, rng);
+            newPop.push_back(child);
+        }
+
+        pop = move(newPop);
+
+        // find new best
+        for (auto& ind : pop) {
+            double f = fitness(ind);
+            if (f > bestFit) {
+                bestFit = f;
+                best = ind;
+            }
+        }
+    }
+}
+
 int main(){
     GAParams param;
     param.generations = 30;
     std::mt19937 rng(param.seed);
 
-    std::vector<std::vector<int>> pop = initPopulation(param, rng);
-    for (size_t i = 0; i < param.generations; i++)
-    {
-        pop = makeCrossover(tournamentSelection(pop, param), rng, param);
-    }
+    auto pop = initPopulation(param, rng);
 
+    std::vector<int> best = pop[0];
+    double bestFit = fitness(best);
+
+    findBest(pop, best, bestFit, param, rng);
+
+    std::cout << "Melhor distância: " << pathDistance(best) << "\n";
+    std::cout << "Melhor caminho: ";
+    printPath(best);
     return 0;
 }
