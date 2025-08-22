@@ -20,11 +20,10 @@ static const int DIST[MATRIX_SIZE][MATRIX_SIZE] = {
 };
 
 struct GAParams {
-    int populationSize = 100;
-    int generations = 10;
-    int tournamentSize = 4;
+    size_t populationSize = 100;
+    size_t generations = 10;
+    size_t tournamentSize = populationSize/4;
     double mutationRate = 0.075;
-    int elitismCount = (int)populationSize/generations;
     unsigned seed = std::random_device{}();
 };
 
@@ -59,10 +58,10 @@ double fitness(int distance) {
 }
 
 
-std::vector<std::vector<int>> initPopulation(int popSize, std::mt19937& rng) {
+std::vector<std::vector<int>> initPopulation( GAParams &param, std::mt19937& rng) {
     std::vector<std::vector<int>> pop;
-    pop.reserve(popSize);
-    for (int i = 0; i < popSize; ++i) {
+    pop.reserve(param.populationSize);
+    for (size_t i = 0; i < param.populationSize; ++i) {
         pop.push_back(randomPath(rng));
     }
     return pop;
@@ -98,7 +97,7 @@ std::vector<std::tuple<std::vector<int>, int, double>> tournamentSelection(const
         });
 
     //remove what is not elite
-    while (elite.size() > param.elitismCount)
+    while (elite.size() > param.tournamentSize)
     {
         elite.pop_back();
     }
@@ -149,10 +148,10 @@ std::vector<std::vector<int>> makeCrossover(std::vector<std::tuple<std::vector<i
         std::vector<int> newpath;
         if (p1.size() == p2.size())
         {
-            std::uniform_real_distribution<int> oneOrAnother(0, 1);
+            std::uniform_real_distribution<float> oneOrAnother(0, 1);
             for (size_t i = 0; i < p1.size(); i++)
             {
-                if (oneOrAnother(rng)) {
+                if (oneOrAnother(rng) > 0.5f) {
                     newpath.push_back(p1[i]);
                 }else {
                     newpath.push_back(p2[i]);
@@ -173,5 +172,15 @@ void printPath(const std::vector<int>& path) {
 }
 
 int main(){
+    GAParams param;
+    param.generations = 30;
+    std::mt19937 rng(param.seed);
+
+    std::vector<std::vector<int>> pop = initPopulation(param, rng);
+    for (size_t i = 0; i < param.generations; i++)
+    {
+        pop = makeCrossover(tournamentSelection(pop, param), rng, param);
+    }
+
     return 0;
 }
