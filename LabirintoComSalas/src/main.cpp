@@ -282,8 +282,54 @@ std::deque<Vec2*> breadthFirstSearch(Vec2* start, Vec2* destination, const std::
     return fail;
 };
 
-void depthFirstSearch();
-void greedyBestFirstSearch();
+std::deque<Vec2*> depthFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
+    std::deque<Vec2*> path;
+    path.push_back(start);
+    start->visited = true;
+
+    while(path.back() != destination){
+        path.back()->visited = true;
+
+        Vec2* next = nullptr;
+        while (next == nullptr)
+        {
+            for (Vec2* block : path.back()->owner->getBlocks()) {
+                if (!block->visited && path.back()->isNeighbor(block)) {
+                    next = block;
+                    break;
+                }
+            }
+
+
+            if (next == nullptr)
+            {
+                for (Vec2* neighbor : path.back()->connections) {
+                    if (!neighbor->visited) {
+                        next = neighbor;
+                        break;
+                    }
+                }
+            }
+
+            if (next == nullptr)
+            {
+                path.pop_back();
+                if (path.empty())
+                {
+                    return path;
+                }
+            }
+        }
+        path.push_back(next);
+        std::cout << "===================================================================" << " path size:" << path.size() << std::endl;
+        printGrid(grid);
+    }
+    return path;
+};
+
+void greedyBestFirstSearch(){
+    
+};
 void aStarSearch();
 
 int main() {
@@ -299,7 +345,11 @@ int main() {
     std::cout << std::endl;
 
     //* breadthFirstSearch
-    std::deque<Vec2 *> path = breadthFirstSearch(start, destination, grid);
+    // std::deque<Vec2 *> path = breadthFirstSearch(start, destination, grid);
+
+    //* depthFirstSearch
+    std::deque<Vec2 *> path = depthFirstSearch(start, destination, grid);
+
     std::cout << "Solution:" << std::endl;
     for (Vec2* node : path)
     {
@@ -307,6 +357,7 @@ int main() {
             std::cout << "" << node->owner->getName() <<"(" << node->x << ", " << node->y << ") |";
         }
     }
+
     std::cout << std::endl;
     printGridResult(grid, path);
     std::cout << std::endl;
