@@ -327,6 +327,10 @@ std::deque<Vec2*> depthFirstSearch(Vec2* start, Vec2* destination, const std::ve
     return path;
 };
 
+double heuristic(Vec2* vec, Vec2* dest){
+    return sqrt(pow((vec->x - dest->x), 2) + pow((vec->y - dest->y), 2));
+}
+
 std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
     std::deque<Vec2*> path;
     path.push_back(start);
@@ -350,11 +354,19 @@ std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const st
             }
         }
 
-        std::sort(possibilities.begin(), possibilities.back(), [](Vec2* a, Vec2* b) {
-                    return a->heuristic() > b->heuristic();
+        if (!possibilities.empty())
+        {
+            std::sort(possibilities.begin(), possibilities.end(), [destination](Vec2* a, Vec2* b) {
+                    return heuristic(a, destination) < heuristic(b, destination);
                 });
+            next = possibilities[0];
+            possibilities.clear();
+        }
 
-        if (next == nullptr)
+        if (next != nullptr)
+        {
+            path.push_back(next);
+        }else
         {
             path.pop_back();
             if (path.empty())
@@ -362,8 +374,6 @@ std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const st
                 return path;
             }
         }
-
-        path.push_back(next);
         std::cout << "===================================================================" << " path size:" << path.size() << std::endl;
         printGrid(grid);
     }
@@ -380,7 +390,7 @@ int main() {
     std::vector<std::vector<Vec2 *>> grid = buildGrid(maze);
 
     Vec2* start =grid[0][0];
-    Vec2* destination = grid[6][7];
+    Vec2* destination = grid[6][4];
     std::cout << "start:" << "(" << start->x << ", " << start->y << ") ";
     std::cout << " destination:" << "(" << destination->x << ", " << destination->y << ") ";
     std::cout << std::endl;
@@ -389,7 +399,10 @@ int main() {
     // std::deque<Vec2 *> path = breadthFirstSearch(start, destination, grid);
 
     //* depthFirstSearch
-    std::deque<Vec2 *> path = depthFirstSearch(start, destination, grid);
+    // std::deque<Vec2 *> path = depthFirstSearch(start, destination, grid);
+
+    //* greedyBestFirstSearch
+    std::deque<Vec2 *> path = greedyBestFirstSearch(start, destination, grid);
 
     std::cout << "Solution:" << std::endl;
     for (Vec2* node : path)
