@@ -327,9 +327,50 @@ std::deque<Vec2*> depthFirstSearch(Vec2* start, Vec2* destination, const std::ve
     return path;
 };
 
-void greedyBestFirstSearch(){
-    
+std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
+    std::deque<Vec2*> path;
+    path.push_back(start);
+    start->visited = true;
+
+    while (path.back() != destination)
+    {
+        path.back()->visited = true;
+        Vec2* next = nullptr;
+        std::vector<Vec2*> possibilities;
+
+        for (Vec2* block : path.back()->owner->getBlocks()) {
+            if (!block->visited && path.back()->isNeighbor(block)) {
+                possibilities.push_back(block);
+            }
+        }
+
+        for (Vec2* neighbor : path.back()->connections) {
+            if (!neighbor->visited) {
+                possibilities.push_back(neighbor);
+            }
+        }
+
+        std::sort(possibilities.begin(), possibilities.back(), [](Vec2* a, Vec2* b) {
+                    return a->heuristic() > b->heuristic();
+                });
+
+        if (next == nullptr)
+        {
+            path.pop_back();
+            if (path.empty())
+            {
+                return path;
+            }
+        }
+
+        path.push_back(next);
+        std::cout << "===================================================================" << " path size:" << path.size() << std::endl;
+        printGrid(grid);
+    }
+
+    return path;
 };
+
 void aStarSearch();
 
 int main() {
