@@ -6,6 +6,11 @@
 #include <bits/stdc++.h>
 #include <sstream>
 #include <nlohmann/json.hpp>
+#include <unordered_map>
+#include <limits>
+
+//A*
+const double COST_PER_MOVE = 1.0;
 
 class Room;
 
@@ -17,6 +22,12 @@ public:
     Room* owner = nullptr;
     bool visited = false;
     std::vector<Vec2*> connections;
+
+    // A*
+    double cost = 1e9;   // cost from start (init large)
+    double heu = 0;     // heuristic
+    double total_estimated_cost = 1e9;   // cost + heuristic
+    Vec2* parent = nullptr;
 
     Vec2(int x, int y, Room* owner){
         this->x=x;
@@ -381,7 +392,81 @@ std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const st
     return path;
 };
 
-void aStarSearch();
+// Path reconstruction
+std::deque<Vec2*> reconstructPath(Vec2* current) {
+    std::deque<Vec2*> path;
+    while (current) {
+        path.push_front(current);
+        current = current->parent;
+    }
+    return path;
+}
+
+std::deque<Vec2*> aStarSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
+
+    // Open list = nodes to explore
+    std::vector<Vec2*> openList;
+    openList.push_back(start);
+
+    start->cost = 0;
+    start->heu = heuristic(start, destination);
+    start->total_estimated_cost = start->cost + start->heu;
+
+    while (!openList.empty()) {
+
+        // Pick node with lowest total_estimated_cost
+        auto bestIt = std::min_element(openList.begin(), openList.end(),
+            [](Vec2* a, Vec2* b) { return a->total_estimated_cost < b->total_estimated_cost; });
+        Vec2* current = *bestIt;
+        openList.erase(bestIt);
+
+        if (current == destination) {
+            std::deque<Vec2*> path;
+            while (current) {
+                path.push_front(current);
+                current = current->parent;
+            }
+            return path;
+        }
+
+        current->visited = true;
+
+        // Collect neighbors
+        std::vector<Vec2*> neighbors;
+        for (Vec2* block : current->owner->getBlocks()) {
+            if (current->isNeighbor(block)) {
+                neighbors.push_back(block);
+            }
+        }
+        for (Vec2* neighbor : current->connections) {
+            neighbors.push_back(neighbor);
+        }
+
+        for (Vec2* neighbor : neighbors) {
+            if (!neighbor->visited) {
+                double tentative_cost = current->cost + COST_PER_MOVE;
+
+                if (tentative_cost < neighbor->cost) {
+                    neighbor->parent = current;
+                    neighbor->cost = tentative_cost;
+                    neighbor->heu = heuristic(neighbor, destination);
+                    neighbor->total_estimated_cost = neighbor->cost + neighbor->heu;
+
+                    // If not in open list, add it
+                    if (std::find(openList.begin(), openList.end(), neighbor) == openList.end()) {
+                        openList.push_back(neighbor);
+                    }
+                }
+            }
+        }
+
+        std::cout << "=================================================================== " << " exploring (" << current->x << "," << current->y << ") " << " openList size: " << openList.size() << std::endl;
+        printGrid(grid);
+    }
+
+    std::deque<Vec2*> emptyPath;
+    return emptyPath;
+};
 
 int main() {
     std::vector<Room*> maze;
@@ -402,7 +487,10 @@ int main() {
     // std::deque<Vec2 *> path = depthFirstSearch(start, destination, grid);
 
     //* greedyBestFirstSearch
-    std::deque<Vec2 *> path = greedyBestFirstSearch(start, destination, grid);
+    // std::deque<Vec2 *> path = greedyBestFirstSearch(start, destination, grid);
+
+    //* aStarSearch
+    std::deque<Vec2 *> path = aStarSearch(start, destination, grid);
 
     std::cout << "Solution:" << std::endl;
     for (Vec2* node : path)
