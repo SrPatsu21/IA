@@ -25,10 +25,10 @@ static const int DIST[MATRIX_SIZE][MATRIX_SIZE] = {
 };
 
 struct GAParams {
-    size_t populationSize = 100;
+    size_t populationSize = 10;
     size_t generations = 10;
     size_t tournamentSize = 4;
-    double mutationRate = 0.075;
+    double mutationRate = 0.2;
     unsigned seed = std::random_device{}();
 };
 
@@ -204,6 +204,29 @@ std::vector<int> pmxCrossover(const std::vector<int>& p1, const std::vector<int>
     return child;
 }
 
+void logGenerationStats(std::vector<std::vector<int>>& pop, int generation) {
+    double bestFit = 0.0;
+    int bestDist = std::numeric_limits<int>::max();
+    double totalDist = 0.0;
+
+    for (auto& ind : pop) {
+        int dist = pathDistance(ind);
+        double fit = fitness(dist);
+        totalDist += dist;
+        if (fit > bestFit) {
+            bestFit = fit;
+            bestDist = dist;
+        }
+    }
+
+    double avgDist = totalDist / pop.size();
+
+    // Print generation stats
+    std::cout << "Geração " << generation
+                << " | Melhor distância: " << bestDist
+                << " | Média distância: " << avgDist << "\n";
+}
+
 void printPath(const std::vector<int>& path) {
     for (int i = 0; i < (int)path.size(); ++i) {
         std::cout << CITY_NAMES[path[i]] << " -> ";
@@ -221,7 +244,7 @@ void findBest(std::vector<std::vector<int>> &pop, std::vector<int> &best, double
         while (newPop.size() < param.populationSize) {
             auto p1 = tournamentSelection(pop, param, rng);
             auto p2 = tournamentSelection(pop, param, rng);
-            auto child = pmxCrossover(p1,p2,rng);
+            auto child = orderCrossover(p1,p2,rng);
             mutate(child, param.mutationRate, rng);
             newPop.push_back(child);
         }
@@ -236,12 +259,13 @@ void findBest(std::vector<std::vector<int>> &pop, std::vector<int> &best, double
                 best = ind;
             }
         }
+    logGenerationStats(pop, gen + 1);
     }
 }
 
 int main(){
     GAParams param;
-    param.generations = 30;
+    param.generations = 40;
     std::mt19937 rng(param.seed);
 
     auto pop = initPopulation(param, rng);

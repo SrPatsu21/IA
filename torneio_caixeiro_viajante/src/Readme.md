@@ -39,6 +39,7 @@
 
     Desafio: Testar diferentes valores de taxa_mutacao (ex.: 0.05, 0.1, 0.2).
     Objetivo: Entender o trade-off entre exploração e estabilidade da população.
+    R= As mutacoes mais altas tem um resultado menos, com uma populacao reduzida, porem pode nao alterar boas solucoes
 
 6. Visualizar a evolução
 
