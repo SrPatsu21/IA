@@ -8,15 +8,20 @@
 #include <tuple>
 #include <numeric>
 
-static const std::vector<char> CITY_NAMES = {'A','B','C','D','E'};
-static const int MATRIX_SIZE = 5;
+static const std::vector<char> CITY_NAMES = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+static const int MATRIX_SIZE = 10;
 
 static const int DIST[MATRIX_SIZE][MATRIX_SIZE] = {
-    { 0, 12,  3, 23,  1},
-    {12,  0,  9, 18,  3},
-    { 3,  9,  0, 89, 56},
-    {23, 18, 89,  0, 45},
-    { 1,  3, 56, 45,  0}
+    {  0, 12, 29, 22, 13, 17, 25, 19, 31, 28},
+    { 12,  0, 21, 15, 11, 18, 14, 23, 27, 20},
+    { 29, 21,  0, 28, 36, 26, 30, 33, 24, 32},
+    { 22, 15, 28,  0, 19, 23, 17, 21, 29, 27},
+    { 13, 11, 36, 19,  0, 14, 20, 18, 25, 22},
+    { 17, 18, 26, 23, 14,  0, 16, 24, 28, 19},
+    { 25, 14, 30, 17, 20, 16,  0, 22, 26, 21},
+    { 19, 23, 33, 21, 18, 24, 22,  0, 27, 29},
+    { 31, 27, 24, 29, 25, 28, 26, 27,  0, 15},
+    { 28, 20, 32, 27, 22, 19, 21, 29, 15,  0}
 };
 
 struct GAParams {
@@ -48,10 +53,16 @@ std::vector<int> randomPath(std::mt19937& rng){
 
 double fitness(std::vector<int>& path) {
     int distance = pathDistance(path);
+    if(distance > 30){
+        distance *= 2;
+    }
     return 1.0 / (distance + 1e-9);
 }
 
 double fitness(int distance) {
+    if(distance > 30){
+        distance *= 2;
+    }
     return 1.0 / (distance + 1e-9);
 }
 
@@ -78,7 +89,7 @@ void mutate(std::vector<int>& ind, double mutationRate, std::mt19937& rng) {
     }
 }
 
-std::vector<int> tournamentSelection(const std::vector<std::vector<int>>& pop, GAParams &param, std::mt19937& rng) {
+std::vector<int> tournamentSelection(std::vector<std::vector<int>>& pop, GAParams &param, std::mt19937& rng) {
     std::uniform_int_distribution<int> pick(0, (int)pop.size()-1);
     //init
     std::vector<int> best = pop[pick(rng)];
@@ -93,6 +104,50 @@ std::vector<int> tournamentSelection(const std::vector<std::vector<int>>& pop, G
         }
     }
     return best;
+}
+
+std::vector<int> rouletteSelection(const std::vector<std::vector<int>>& pop, std::mt19937& rng) {
+    std::vector<double> fits;
+    fits.reserve(pop.size());
+    double totalFit = 0.0;
+    for (auto ind : pop) {
+        double f = fitness(ind);
+        fits.push_back(f);
+        totalFit += f;
+    }
+
+    std::uniform_real_distribution<double> dist(0.0, totalFit);
+    double pick = dist(rng);
+
+    double acum = 0.0;
+    for (size_t i=0; i<pop.size(); i++) {
+        acum += fits[i];
+        if (acum >= pick) {
+            return pop[i];
+        }
+    }
+    return pop.back();
+}
+
+std::vector<int> rankingSelection(std::vector<std::vector<int>> pop, std::mt19937& rng) {
+    std::sort(pop.begin(), pop.end(), [](auto& a, auto& b){
+        return fitness(a) < fitness(b); // menor para maior
+    });
+
+    int n = pop.size();
+    int totalRank = n * (n+1) / 2;
+
+    std::uniform_int_distribution<int> dist(1, totalRank);
+    int pick = dist(rng);
+
+    int acum = 0;
+    for (int i=0; i<n; i++) {
+        acum += (i+1);
+        if (acum >= pick) {
+            return pop[i];
+        }
+    }
+    return pop.back();
 }
 
 std::vector<int> orderCrossover(const std::vector<int>& p1, const std::vector<int>& p2, std::mt19937& rng) {
@@ -122,6 +177,33 @@ std::vector<int> orderCrossover(const std::vector<int>& p1, const std::vector<in
     return child;
 }
 
+std::vector<int> pmxCrossover(const std::vector<int>& p1, const std::vector<int>& p2, std::mt19937& rng) {
+    int size = p1.size();
+    std::vector<int> child(size, -1);
+
+    std::uniform_int_distribution<int> cut(0, size-1);
+    int a = cut(rng), b = cut(rng);
+    if (a > b) std::swap(a, b);
+
+    // Copy segment from p1
+    for (int i = a; i <= b; ++i) child[i] = p1[i];
+
+    // Fill remaining positions from p2
+    for (int i = 0; i < size; ++i) {
+        int gene = p2[i];
+        if (std::find(child.begin() + a, child.begin() + b + 1, gene) != child.begin() + b + 1) continue;
+
+        int pos = i;
+        while (child[pos] != -1) {
+            // Find the position of gene from p1
+            int val = p1[pos];
+            pos = std::distance(p2.begin(), std::find(p2.begin(), p2.end(), val));
+        }
+        child[pos] = gene;
+    }
+    return child;
+}
+
 void printPath(const std::vector<int>& path) {
     for (int i = 0; i < (int)path.size(); ++i) {
         std::cout << CITY_NAMES[path[i]] << " -> ";
@@ -139,7 +221,7 @@ void findBest(std::vector<std::vector<int>> &pop, std::vector<int> &best, double
         while (newPop.size() < param.populationSize) {
             auto p1 = tournamentSelection(pop, param, rng);
             auto p2 = tournamentSelection(pop, param, rng);
-            auto child = orderCrossover(p1,p2,rng);
+            auto child = pmxCrossover(p1,p2,rng);
             mutate(child, param.mutationRate, rng);
             newPop.push_back(child);
         }
