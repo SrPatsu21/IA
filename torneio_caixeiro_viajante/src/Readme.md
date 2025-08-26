@@ -33,7 +33,7 @@
         Partially Mapped Crossover (PMX)
 
     Objetivo: Analisar qual crossover produz melhores resultados para rotas.
-    R= O PMX aparentemente é melhor, nos meus testes ele resultou nos melhores valores e mais constantes que o Order Crossover
+    R= O PMX aparentemente é melhor, nos meus testes ele resultou nos melhores valores e mais constantes que o Order Crossover.
 
 5. Explorar taxa de mutação
 
