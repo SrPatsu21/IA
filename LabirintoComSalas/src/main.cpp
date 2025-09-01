@@ -339,7 +339,7 @@ std::deque<Vec2*> depthFirstSearch(Vec2* start, Vec2* destination, const std::ve
 };
 
 double heuristic(Vec2* vec, Vec2* dest){
-    return sqrt(pow((vec->x - dest->x), 2) + pow((vec->y - dest->y), 2));
+    return std::abs(vec->x - dest->x) + std::abs(vec->y - dest->y);
 }
 
 std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
