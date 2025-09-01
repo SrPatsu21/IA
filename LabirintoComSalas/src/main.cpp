@@ -219,7 +219,7 @@ void printGrid(const std::vector<std::vector<Vec2*>>& grid) {
                 std::cout << "O "; // not visited
             }
         }
-        std::cout << "\n";
+        std::cout << std::endl;
     }
 }
 
@@ -242,7 +242,7 @@ void printGridResult(const std::vector<std::vector<Vec2*>>& grid, std::deque<Vec
                 std::cout << "O "; // not visited
             }
         }
-        std::cout << "\n";
+        std::cout << std::endl;
     }
 }
 
@@ -470,8 +470,8 @@ std::deque<Vec2*> aStarSearch(Vec2* start, Vec2* destination, const std::vector<
 
 int main(int argc, char* argv[]) {
     if (argc < 6) {
-        std::cerr << "Usage: " << argv[0] << " <algorithm> <start_x> <start_y> <dest_x> <dest_y>\n";
-        std::cerr << "Algorithms: bfs | dfs | greedy | astar\n";
+        std::cerr << "Usage: " << argv[0] << " <algorithm> <start_x> <start_y> <dest_x> <dest_y> (7x6)" << std::endl;
+        std::cerr << "Algorithms: bfs | dfs | greedy | astar" << std::endl;
         return 1;
     }
 
@@ -487,20 +487,20 @@ int main(int argc, char* argv[]) {
 
     // Validate start/destination
     if (sy < 0 || sy >= (int)grid.size() || sx < 0 || sx >= (int)grid[0].size() || !grid[sy][sx]) {
-        std::cerr << "Invalid start coordinates!\n";
+        std::cerr << "Invalid start coordinates!" << std::endl;
         return 1;
     }
     if (dy < 0 || dy >= (int)grid.size() || dx < 0 || dx >= (int)grid[0].size() || !grid[dy][dx]) {
-        std::cerr << "Invalid destination coordinates!\n";
+        std::cerr << "Invalid destination coordinates!" << std::endl;
         return 1;
     }
 
     Vec2* start = grid[sy][sx];
     Vec2* destination = grid[dy][dx];
 
-    std::cout << "Algorithm: " << algorithm << "\n";
-    std::cout << "Start: (" << start->x << ", " << start->y << ")\n";
-    std::cout << "Destination: (" << destination->x << ", " << destination->y << ")\n";
+    std::cout << "Algorithm: " << algorithm << std::endl;
+    std::cout << "Start: (" << start->x << ", " << start->y << ")" << std::endl;
+    std::cout << "Destination: (" << destination->x << ", " << destination->y << ")" << std::endl;
 
     std::deque<Vec2 *> path;
 
@@ -513,7 +513,7 @@ int main(int argc, char* argv[]) {
     } else if (algorithm == "astar") {
         path = aStarSearch(start, destination, grid);
     } else {
-        std::cerr << "Unknown algorithm: " << algorithm << "\n";
+        std::cerr << "Unknown algorithm: " << algorithm << std::endl;
         return 1;
     }
 
