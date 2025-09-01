@@ -468,30 +468,56 @@ std::deque<Vec2*> aStarSearch(Vec2* start, Vec2* destination, const std::vector<
     return emptyPath;
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc < 6) {
+        std::cerr << "Usage: " << argv[0] << " <algorithm> <start_x> <start_y> <dest_x> <dest_y>\n";
+        std::cerr << "Algorithms: bfs | dfs | greedy | astar\n";
+        return 1;
+    }
+
     std::vector<Room*> maze;
     buildMaze(maze, "./room.json");
-
     std::vector<std::vector<Vec2 *>> grid = buildGrid(maze);
 
-    Vec2* start =grid[0][0];
-    Vec2* destination = grid[6][4];
-    std::cout << "start:" << "(" << start->x << ", " << start->y << ") ";
-    std::cout << " destination:" << "(" << destination->x << ", " << destination->y << ") ";
-    std::cout << std::endl;
+    std::string algorithm = argv[1];
+    int sx = std::stoi(argv[2]);
+    int sy = std::stoi(argv[3]);
+    int dx = std::stoi(argv[4]);
+    int dy = std::stoi(argv[5]);
 
-    //* breadthFirstSearch
-    // std::deque<Vec2 *> path = breadthFirstSearch(start, destination, grid);
+    // Validate start/destination
+    if (sy < 0 || sy >= (int)grid.size() || sx < 0 || sx >= (int)grid[0].size() || !grid[sy][sx]) {
+        std::cerr << "Invalid start coordinates!\n";
+        return 1;
+    }
+    if (dy < 0 || dy >= (int)grid.size() || dx < 0 || dx >= (int)grid[0].size() || !grid[dy][dx]) {
+        std::cerr << "Invalid destination coordinates!\n";
+        return 1;
+    }
 
-    //* depthFirstSearch
-    // std::deque<Vec2 *> path = depthFirstSearch(start, destination, grid);
+    Vec2* start = grid[sy][sx];
+    Vec2* destination = grid[dy][dx];
 
-    //* greedyBestFirstSearch
-    // std::deque<Vec2 *> path = greedyBestFirstSearch(start, destination, grid);
+    std::cout << "Algorithm: " << algorithm << "\n";
+    std::cout << "Start: (" << start->x << ", " << start->y << ")\n";
+    std::cout << "Destination: (" << destination->x << ", " << destination->y << ")\n";
 
-    //* aStarSearch
-    std::deque<Vec2 *> path = aStarSearch(start, destination, grid);
+    std::deque<Vec2 *> path;
 
+    if (algorithm == "bfs") {
+        path = breadthFirstSearch(start, destination, grid);
+    } else if (algorithm == "dfs") {
+        path = depthFirstSearch(start, destination, grid);
+    } else if (algorithm == "greedy") {
+        path = greedyBestFirstSearch(start, destination, grid);
+    } else if (algorithm == "astar") {
+        path = aStarSearch(start, destination, grid);
+    } else {
+        std::cerr << "Unknown algorithm: " << algorithm << "\n";
+        return 1;
+    }
+
+    //* solution
     std::cout << "Solution:" << std::endl;
     for (Vec2* node : path)
     {
