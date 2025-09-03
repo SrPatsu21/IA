@@ -1,0 +1,30 @@
+T1:
+sudo perf stat ./maze_room.out bfs 0 0 7 6
+/usr/bin/time -v ./maze_room.out bfs 0 0 7 6
+
+T2:
+sudo perf stat ./maze_room.out bfs 0 0 7 0
+/usr/bin/time -v ./maze_room.out bfs 0 0 7 0
+
+T3:
+sudo perf stat ./maze_room.out bfs 0 0 0 6
+/usr/bin/time -v ./maze_room.out bfs 0 0 0 6
+
+T4:
+sudo perf stat ./maze_room.out bfs 0 0 4 3
+/usr/bin/time -v ./maze_room.out bfs 0 0 4 3
+
+T5:
+sudo perf stat ./maze_room.out bfs 0 0 0 0
+/usr/bin/time -v ./maze_room.out bfs 0 0 0 0
+
+T6:
+sudo perf stat ./maze_room.out bfs 4 3 5 3
+/usr/bin/time -v ./maze_room.out bfs 4 3 5 3
+
+T7:
+sudo perf stat ./maze_room.out bfs 4 3 7 0
+/usr/bin/time -v ./maze_room.out bfs 4 3 7 0
+
+sudo perf stat ./maze_room.out bfs 4 3 0 6
+/usr/bin/time -v ./maze_room.out bfs 4 3 0 6

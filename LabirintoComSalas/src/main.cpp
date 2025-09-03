@@ -349,7 +349,6 @@ std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const st
 
     while (path.back() != destination)
     {
-        path.back()->visited = true;
         Vec2* next = nullptr;
         std::vector<Vec2*> possibilities;
 
@@ -377,6 +376,7 @@ std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const st
         if (next != nullptr)
         {
             path.push_back(next);
+            path.back()->visited = true;
         }else
         {
             path.pop_back();
