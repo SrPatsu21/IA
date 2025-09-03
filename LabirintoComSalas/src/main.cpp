@@ -344,53 +344,55 @@ double heuristic(Vec2* vec, Vec2* dest){
 
 std::deque<Vec2*> greedyBestFirstSearch(Vec2* start, Vec2* destination, const std::vector<std::vector<Vec2*>>& grid){
     std::deque<Vec2*> path;
-    path.push_back(start);
+    std::vector<Vec2*> openList;
+
     start->visited = true;
+    start->parent = nullptr;
+    openList.push_back(start);
 
-    while (path.back() != destination)
-    {
-        Vec2* next = nullptr;
-        std::vector<Vec2*> possibilities;
+    while (!openList.empty()) {
+        std::sort(openList.begin(), openList.end(), [destination](Vec2* a, Vec2* b){
+            return heuristic(a, destination) < heuristic(b, destination);
+        });
 
-        for (Vec2* block : path.back()->owner->getBlocks()) {
-            if (!block->visited && path.back()->isNeighbor(block)) {
-                possibilities.push_back(block);
+        Vec2* current = openList.front();
+        openList.erase(openList.begin());
+
+        if (current == destination) {
+            std::deque<Vec2*> finalPath;
+            while (current) {
+                finalPath.push_front(current);
+                current = current->parent;
             }
+            return finalPath;
         }
 
-        for (Vec2* neighbor : path.back()->connections) {
+        std::vector<Vec2*> neighbors;
+        for (Vec2* block : current->owner->getBlocks()) {
+            if (!block->visited && current->isNeighbor(block)) {
+                neighbors.push_back(block);
+            }
+        }
+        for (Vec2* neighbor : current->connections) {
             if (!neighbor->visited) {
-                possibilities.push_back(neighbor);
+                neighbors.push_back(neighbor);
             }
         }
 
-        if (!possibilities.empty())
-        {
-            std::sort(possibilities.begin(), possibilities.end(), [destination](Vec2* a, Vec2* b) {
-                    return heuristic(a, destination) < heuristic(b, destination);
-                });
-            next = possibilities[0];
-            possibilities.clear();
+        for (Vec2* neighbor : neighbors) {
+            neighbor->visited = true;
+            neighbor->parent = current;
+            openList.push_back(neighbor);
         }
 
-        if (next != nullptr)
-        {
-            path.push_back(next);
-            path.back()->visited = true;
-        }else
-        {
-            path.pop_back();
-            if (path.empty())
-            {
-                return path;
-            }
-        }
-        std::cout << "===================================================================" << " path size:" << path.size() << std::endl;
+        std::cout << "=================================================================== " << " exploring (" << current->x << "," << current->y << ") "
+                << " openList size: " << openList.size() << std::endl;
         printGrid(grid);
     }
 
-    return path;
-};
+    // caminho não encontrado
+    return std::deque<Vec2*>();
+}
 
 // Path reconstruction
 std::deque<Vec2*> reconstructPath(Vec2* current) {
@@ -519,6 +521,7 @@ int main(int argc, char* argv[]) {
 
     //* solution
     std::cout << "Solution:" << std::endl;
+    std::cout << "path size " << path.size() << std::endl;
     for (Vec2* node : path)
     {
         if (node) {
