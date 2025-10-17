@@ -16,7 +16,7 @@ template <typename T> std::string vectorStringify(std::vector<T> v){
     return newString;
 }
 
-class Adaline
+class Perceptron
 {
 private:
     std::vector<double> weights;
@@ -28,7 +28,7 @@ private:
         return (x >= 0) ? 1 : 0;
     }
 public:
-    Adaline(int input_size, double learning_rate = 0.1){
+    Perceptron(int input_size, double learning_rate = 0.1){
         this->learning_rate = learning_rate;
         this->bias = INIT_BIAS;
         this->weights.resize(input_size);
@@ -38,7 +38,7 @@ public:
             // w = ((double) rand() / RAND_MAX); // * 2 - 1;
         }
     };
-    ~Adaline(){
+    ~Perceptron(){
 
     };
 
@@ -91,7 +91,7 @@ int main()
     };
     std::vector<int> Y = {0, 0, 0, 1};
 
-    Adaline* perceptron = new Adaline(INPUT_SIZE, LEARNING_RATE);
+    Perceptron* perceptron = new Perceptron(INPUT_SIZE, LEARNING_RATE);
 
     std::cout << "starting training:" << std::endl;
     perceptron->train(X, Y, TRAINING_TIMES);

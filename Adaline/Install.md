@@ -1,6 +1,8 @@
 # BUILD
 
 ```shell
+sudo apt install gnuplot libboost-all-dev
+wget https://github.com/dstahlke/gnuplot-iostream/blob/master/gnuplot-iostream.h
 mkdir build
 cd build
 cmake ..
