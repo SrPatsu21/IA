@@ -10,7 +10,7 @@ const int TRAINING_TIMES = 20; // Maximum number of epochs
 const double INIT_BIAS = 0.0; // Initial bias value
 const double LEARNING_RATE = 0.1; // Learning rate (alpha)
 const int INPUT_SIZE = 2; // Number of input features
-const int REPEAT_TIME = 1;
+const int REPEAT_TIME = 10;
 
 class Perceptron
 {
