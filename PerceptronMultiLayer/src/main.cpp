@@ -6,9 +6,9 @@
 
 const int REPEAT_TIME = 1;
 
-const int TRAINING_TIMES = 20;
-const double INIT_BIAS = 0.1;
-const double LEARNING_RATE = 0.4;
+const int TRAINING_TIMES = 2000;
+const double INIT_BIAS = 0.5;
+const double LEARNING_RATE = 0.5;
 
 const int INPUT_SIZE = 2;
 const int HIDDEN_SIZE = 3;
@@ -27,10 +27,12 @@ private:
         return (x >= 0) ? 1 : 0;
     }
 
+    // Squashes neuron output to 0-1
     double sigmoid(double x) {
         return 1.0 / (1.0 + std::exp(-x));
     }
 
+    // Guides weight updates during learning
     double sigmoid_derivative(double x) {
         return x * (1.0 - x);
     }
@@ -62,8 +64,8 @@ public:
             b = dis(gen);
     }
 
-    std::vector<double> forward(const std::vector<double> &inputs,
-                                std::vector<double> &hidden_outputs) {
+    std::vector<double> forward(const std::vector<double> &inputs, std::vector<double> &hidden_outputs) {
+        // Compute the hidden layer activations
         hidden_outputs.resize(weights_input_hidden.size());
         for (size_t i = 0; i < weights_input_hidden.size(); ++i) {
             double sum = bias_hidden[i];
@@ -72,6 +74,7 @@ public:
             hidden_outputs[i] = sigmoid(sum);
         }
 
+        // Compute the output layer activations
         std::vector<double> outputs(weights_hidden_output.size());
         for (size_t i = 0; i < weights_hidden_output.size(); ++i) {
             double sum = bias_output[i];
@@ -90,17 +93,20 @@ public:
             double total_error = 0.0;
 
             for (size_t i = 0; i < X.size(); i++) {
+                // For each training input:
+                // Compute hidden layer activations.
                 std::vector<double> hidden_outputs;
+                // Compute output predictions (between 0 and 1).
                 std::vector<double> outputs = forward(X[i], hidden_outputs);
 
-                // Output layer error
+                // Compute output layer errors
                 std::vector<double> output_errors(outputs.size());
                 for (size_t j = 0; j < outputs.size(); ++j) {
                     output_errors[j] = (Y[i][j] - outputs[j]) * sigmoid_derivative(outputs[j]);
                     total_error += std::abs(Y[i][j] - outputs[j]);
                 }
 
-                // Hidden layer error
+                // Compute hidden layer errors
                 std::vector<double> hidden_errors(hidden_outputs.size());
                 for (size_t j = 0; j < hidden_outputs.size(); ++j) {
                     double error = 0.0;
@@ -125,8 +131,13 @@ public:
             }
 
             error_list.push_back(total_error);
-            std::cout << "Epoch " << epoch + 1 << " | Error: " << total_error << std::endl;
-            if (total_error == 0) break;
+            if (total_error < 1) {
+                std::cout << "Epoch " << epoch + 1 << " | Error: " << total_error << std::endl;
+                break;
+            } else if (epoch%100 == 0)
+            {
+                std::cout << "Epoch " << epoch + 1 << " | Error: " << total_error << std::endl;
+            }
         }
 
         return error_list;
@@ -168,18 +179,20 @@ int main() {
     std::vector<std::vector<double>> Yor  = {{0}, {1}, {1}, {1}};
     std::vector<std::vector<double>> Yxor = {{0}, {1}, {1}, {0}};
 
-//  // AND training
-//     for (int i = 0; i < REPEAT_TIME; i++) {
-//         MLPerceptron perceptron(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE);
-//         auto errors =  perceptron.train(X, Yand, TRAINING_TIMES);
-//         generateGraf("AND", i + 1, errors);
+    // AND training
+    for (int i = 0; i < REPEAT_TIME; i++) {
+        MLPerceptron perceptron(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE);
+        auto errors =  perceptron.train(X, Yand, TRAINING_TIMES);
+        generateGraf("AND", i + 1, errors);
 
-//         std::cout << "\nPredictions AND gate:" << std::endl;
-//         for (size_t j = 0; j < X.size(); j++) {
-//             auto pred = perceptron.predict(X[j]);
-//             std::cout << X[j][0] << " AND " << X[j][1] << " = " << (pred[0] > 0.5 ? 1 : 0) << std::endl;
-//         }
-//     }
+        std::cout << "\nPredictions AND gate:" << std::endl;
+        for (size_t j = 0; j < X.size(); j++) {
+            auto pred = perceptron.predict(X[j]);
+            std::cout << X[j][0] << " AND " << X[j][1] << " = " << (pred[0] > 0.5 ? 1 : 0) << std::endl;
+        }
+    }
+
+    std::cout << std::endl << "--------------------------------------------" << std::endl;
 
     // OR training
     for (int i = 0; i < REPEAT_TIME; i++) {
@@ -194,18 +207,20 @@ int main() {
         }
     }
 
-    // XOR training
-    // for (int i = 0; i < REPEAT_TIME; i++) {
-    //     MLPerceptron perceptron(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE);
-    //     auto errors = perceptron.train(X, Yxor, TRAINING_TIMES);
-    //     generateGraf("XOR", i + 1, errors);
+    std::cout << std::endl << "--------------------------------------------" << std::endl;
 
-    //     std::cout << "\nPredictions XOR gate:" << std::endl;
-    //     for (size_t j = 0; j < X.size(); j++) {
-    //         auto pred = perceptron.predict(X[j]);
-    //         std::cout << X[j][0] << " XOR " << X[j][1] << " = " << (pred[0] > 0.5 ? 1 : 0) << std::endl;
-    //     }
-    // }
+    // XOR training
+    for (int i = 0; i < REPEAT_TIME; i++) {
+        MLPerceptron perceptron(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE);
+        auto errors = perceptron.train(X, Yxor, TRAINING_TIMES);
+        generateGraf("XOR", i + 1, errors);
+
+        std::cout << "\nPredictions XOR gate:" << std::endl;
+        for (size_t j = 0; j < X.size(); j++) {
+            auto pred = perceptron.predict(X[j]);
+            std::cout << X[j][0] << " XOR " << X[j][1] << " = " << (pred[0] > 0.5 ? 1 : 0) << std::endl;
+        }
+    }
 
     return 0;
 }
